@@ -23,7 +23,15 @@
   apt:
    name: elasticsearch
    update_cache: yes
-   
+
+- name: set elasticsearch permissions
+  file:
+    path: /usr/share/elasticsearch
+    state: directory
+    recurse: yes
+    owner: elasticsearch
+    group: elasticsearch
+    
 # Update Elasticsearch config file to allow access (to secure Elasticsearch, bind to 'localhost'). 
 
 - name: Updating the config file to allow outside access
@@ -58,24 +66,39 @@
    regexp: 'discovery.seed_hosts:'
    line: 'discovery.seed_hosts: ["0.0.0.0"]'
 
-- name: Adding security end of config file 
-  lineinfile:
-   dest: /etc/elasticsearch/elasticsearch.yml
-   line: 'xpack.security.enabled: true'
+- name: Adding settings at the end of elasticsearch.yml
+  blockinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    block: |
+      xpack.security.enabled: true
+      discovery.type: single-node
+      xpack.security.transport.ssl.enabled: false
+      http.compression: true
+      http.compression_level: 3
+      indices.fielddata.cache.size: 30%
+      indices.queries.cache.size: 30%
+      action.auto_create_index: true
+      action.destructive_requires_name: true
+      bootstrap.memory_lock: true
 
-- name: Adding ssl disable end of config file 
-  lineinfile:
-   dest: /etc/elasticsearch/elasticsearch.yml
-   line: 'xpack.security.transport.ssl.enabled: false'
+- name: Changing jvm.options min/max heap 
+  blockinfile:
+   dest: /etc/elasticsearch/jvm.options
+    block: |
+      -Xms8g
+      -Xmx8g
 
-- name: Adding discovery end of config file 
-  lineinfile:
-   dest: /etc/elasticsearch/elasticsearch.yml
-   line: 'discovery.type: single-node'
+- name: Add or modify memlock, both soft and hard, limit for elasticsearch user.
+  pam_limits:
+    domain: elasticsearch
+    limit_type: '-'
+    limit_item: memlock
+    value: unlimited
+    comment: unlimited memory lock for elasticsearch
 
 # Start Elasticsearch
 - name: Starting Elasticsearch
   service:
    name: elasticsearch
    state: started
-    
+   
