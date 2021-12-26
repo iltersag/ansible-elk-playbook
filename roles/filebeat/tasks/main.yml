@@ -12,6 +12,31 @@
 
 # Starting Filebeat
 
+- name: Remove FileBeat YAML File
+  become: yes
+  file:
+    path: /etc/filebeat/filebeat.yml
+    state: absent
+
+- name: Create New FileBeat YAML File
+  become: yes
+  file:
+      path: /etc/filebeat/filebeat.yml
+      state: touch
+
+- name: Add FileBeat YAML Configuration
+  become: yes
+  blockinfile:
+      path: /etc/filebeat/filebeat.yml
+      marker: ""
+      block: |
+        filebeat.inputs:
+        - type: log
+          paths:
+          - /var/log/*.log
+        output.logstash:
+          hosts: ["localhost:5044"]
+
 - name: Starting Filebeat
   service:
    name: filebeat

@@ -14,7 +14,7 @@
 
 - name: Adding Elasticsearch repo
   apt_repository:
-   repo: deb https://artifacts.elastic.co/packages/5.x/apt stable main
+   repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
    state: present
 
 # Installing Elasticsearch
@@ -39,7 +39,40 @@
    destfile: /etc/elasticsearch/elasticsearch.yml
    regexp: 'http.port:'
    line: 'http.port: 9200'
- 
+
+- name: Updating the cluster name in config file 
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'cluster.name:'
+   line: 'cluster.name: elk-logger'
+
+- name: Updating the node name in config file 
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'node.name:'
+   line: 'node.name: node-1'
+
+- name: Updating the seed hosts in config file 
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'discovery.seed_hosts:'
+   line: 'discovery.seed_hosts: ["0.0.0.0"]'
+
+- name: Adding security end of config file 
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   line: 'xpack.security.enabled: true'
+
+- name: Adding ssl disable end of config file 
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   line: 'xpack.security.transport.ssl.enabled: false'
+
+- name: Adding discovery end of config file 
+  lineinfile:
+   dest: /etc/elasticsearch/elasticsearch.yml
+   line: 'discovery.type: single-node'
+
 # Start Elasticsearch
 - name: Starting Elasticsearch
   service:
