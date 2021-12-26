@@ -83,7 +83,7 @@
 
 - name: Changing jvm.options min/max heap 
   blockinfile:
-   dest: /etc/elasticsearch/jvm.options
+    path: /etc/elasticsearch/jvm.options
     block: |
       -Xms8g
       -Xmx8g
