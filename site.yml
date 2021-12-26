@@ -5,39 +5,43 @@
 - hosts: localhost
   gather_facts: yes
 
-- name: Install Packages
-  apt: name= state=latest update_cache=yes cache_valid_time=3600
-  with_items:
-    - apt-transport-https
-    - openssl
-    - default-jdk
-    
-- name: Disable swap for current session
-  command: swapoff -a
-  become: true
+  pre_tasks:
+    - name: Install Packages
+      apt: name= state=latest update_cache=yes cache_valid_time=3600
+      with_items:
+        - apt-transport-https
+        - openssl
+        - default-jdk
 
-- name: Disable swap permanently, persist reboots
-  replace:
-    path: /etc/fstab
-    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
-    replace: '#\1\2\3swap\4'
-    backup: yes
+
+    
+    - name: Disable swap for current session
+      command: swapoff -a
+      become: true
+
+    - name: Disable swap permanently, persist reboots
+      replace:
+        path: /etc/fstab
+        regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+        replace: '#\1\2\3swap\4'
+        backup: yes
   
 
-- name: set LimitMEMLOCK to infinity.
-  lineinfile:
-    path: /usr/lib/systemd/system/elasticsearch.service
-    insertafter: 'LimitAS=infinity'
-    line: 'LimitMEMLOCK=infinity'
-    state: present
+    - name: set LimitMEMLOCK to infinity.
+      lineinfile:
+        path: /usr/lib/systemd/system/elasticsearch.service
+        insertafter: 'LimitAS=infinity'
+        line: 'LimitMEMLOCK=infinity'
+        state: present
 
-- name: set vm.max_map_count to 262144 in sysctl
-  sysctl: name={{ item.key }} value={{ item.value }}
-  with_items:
-    - { key: "vm.max_map_count", value: "262144" }
+    - name: set vm.max_map_count to 262144 in sysctl
+      sysctl: name={{ item.key }} value={{ item.value }}
+      with_items:
+        - { key: "vm.max_map_count", value: "262144" }
 
-- name: For a permanent setting, update vm.max_map_count in /etc/sysctl.conf
-  command: sysctl -p /etc/sysctl.conf
+    - name: For a permanent setting, update vm.max_map_count in /etc/sysctl.conf
+      command: sysctl -p /etc/sysctl.conf
+
 
   remote_user: ubuntu
   become: yes
