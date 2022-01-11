@@ -4,6 +4,9 @@
 #
 - hosts: localhost
   gather_facts: yes
+  vars:
+      Xms: "Xms4g"
+      Xmx: "Xmx4g"
 
   pre_tasks:
     - name: Install Packages
@@ -33,6 +36,6 @@
   - { role: elasticsearch }
   - { role: kibana }
   - { role: logstash }
-  - { role: filebeat }
-  - { role: metricbeat }
+  #- { role: filebeat }
+  #- { role: metricbeat }
 

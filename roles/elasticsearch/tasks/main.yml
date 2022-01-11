@@ -85,8 +85,8 @@
   blockinfile:
     path: /etc/elasticsearch/jvm.options
     block: |
-      -Xms4g
-      -Xmx4g
+      -{{ Xms }}
+      -{{ Xmx }}
 
 - name: Add or modify memlock, both soft and hard, limit for elasticsearch user.
   pam_limits:
