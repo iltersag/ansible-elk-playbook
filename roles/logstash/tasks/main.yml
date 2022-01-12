@@ -17,21 +17,23 @@
       path: /etc/logstash/conf.d/main.conf
       state: touch
 
-- name: Add Logstash Pipeline Configuration
-  become: yes
-  blockinfile:
-      path: /etc/logstash/conf.d/main.conf
-      marker: ""
-      block: |
-        input {
-          beats {
-            port => 5044
-          }
-        }
-        output {
-          elasticsearch { hosts => ["localhost:9200"]
-          }
-        }
+#  Beat sample pipeline
+#- name: Add Logstash Pipeline Configuration
+#  become: yes
+#  blockinfile:
+#      path: /etc/logstash/conf.d/main.conf
+#      marker: ""
+#      block: |
+#        input {
+#          beats {
+#            port => 5044
+#          }
+#        }
+#        output {
+#          elasticsearch { hosts => ["localhost:9200"]
+#          }
+#        }
+
 # Starting Logstash
 
 - name: Starting Logstash
